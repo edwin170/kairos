@@ -125,6 +125,14 @@ uint32_t new_branch(int64_t where, int64_t addr) {
     return opcode;
 }
 
+uint32_t mov_w0_0(){
+    return 0x52800000;
+}
+
+uint32_t mov_w0_disk() {
+    return 0x52800108; // the last bit is the partition 
+}
+
 uint32_t new_nop() {
     return 0xD503201F;
 }

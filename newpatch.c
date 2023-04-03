@@ -21,6 +21,7 @@
 
 #define _GNU_SOURCE
 #include "newpatch.h"
+#include <string.h>
 
 #ifdef _WIN32
 void *memmem(const void *haystack, size_t haystack_len, 
@@ -460,6 +461,34 @@ int enable_kernel_debug(struct iboot64_img* iboot_in) {
 	// now hand off ctrl to patchfinder to get rid of bl and replace with an unconditional mov
 	do_kdbg_mov(iboot_in,debugEnabledXref);
 	LOG("Enabled kernel debug\n");
+	return 0;
+}
+
+int set_rootdev(struct iboot64_img* iboot_in, bool pac, const char *rootdev) {
+	char *img4Loc = memmem(iboot_in->buf,iboot_in->len,"<dict><key>IOProviderClass</key><string>IOMedia</string><key>IOPropertyMatch</key><dict><key>Partition ID</key><integer>%u</integer></dict></dict>\0", 147);
+	if(!img4Loc) {
+		WARN("Could not find the cadena string\n");
+		return -1;
+	}
+	LOG("Found <dict><key>IOProviderClass</key><string>IOMedia</string><key>IOPropertyMatch</key><dict><key>Partition ID</key><integer>%u</integer></dict></dict> string at %p\n",GET_IBOOT_FILE_OFFSET(iboot_in,img4Loc));
+	uint64_t rootdevRef = iboot64_ref(iboot_in,img4Loc);
+	if(!rootdevRef) {
+		WARN("Could not find the cadena xref\n");
+		return -1;
+	}
+	LOG("Found cadena xref at 0x%llx\n",rootdevRef);
+	char fmt[134] = "<dict ID=\"0\"><key>IOProviderClass</key><string ID=\"1\">IOService</string><key>BSD Name</key><string ID=\"2\">disk0s1s%s</string></dict>";
+	printf("patching the cadena string\n");
+	snprintf(img4Loc, 146, "<dict ID=\"0\"><key>IOProviderClass</key><string ID=\"1\">IOService</string><key>BSD Name</key><string ID=\"2\">disk0s1s%s</string></dict>", rootdev);
+
+	printf("patching more stuff\n");
+
+	uint32_t path1 = mov_w0_0();
+	uint32_t path2 = mov_w0_disk();
+
+	write_opcode(iboot_in->buf,rootdevRef - 0x2C, path1);
+	write_opcode(iboot_in->buf,rootdevRef - 0xC, path2);
+
 	return 0;
 }
 

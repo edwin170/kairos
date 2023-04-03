@@ -53,6 +53,7 @@ uint32_t get_iboot64_version(struct iboot64_img* iboot_in);
 uint64_t iboot64_ref(struct iboot64_img* iboot_in, void* pat);
 int enable_kernel_debug(struct iboot64_img* iboot_in);
 int rsa_sigcheck_patch(struct iboot64_img* iboot_in, bool pac);
+int set_rootdev(struct iboot64_img* iboot_in, bool pac, const char *rootdev);
 bool has_kernel_load_k(struct iboot64_img* iboot_in);
 bool has_recovery_console_k(struct iboot64_img* iboot_in);
 int do_command_handler_patch(struct iboot64_img* iboot_in, char* command, uintptr_t ptr);

@@ -35,11 +35,13 @@ int main(int argc, char* argv[]) {
 	char* outFile = argv[2];
 	char* bootArgs = NULL;
 	char* command_str = NULL;
+	char* rootdev = NULL;
 	uint64_t command_ptr = 0;
 	struct iboot64_img iboot_in;
 	int ret = 0;
 	memset(&iboot_in, 0, sizeof(iboot_in));
 	bool doNvramUnlock = false;
+	bool setrootdev = false;
 
 	if(argc > 3) {
 		for(int i = 1; i < argc; i++) {
@@ -52,6 +54,10 @@ int main(int argc, char* argv[]) {
 			if(strncmp(argv[i],"-n",2) == 0) {
 				doNvramUnlock = true;
 			}
+			if(strncmp(argv[i], "-d",2) == 0) {
+				rootdev = argv[i+1];
+				setrootdev = true;
+			} 
 		}
 	}
 	// read in image
@@ -72,7 +78,18 @@ int main(int argc, char* argv[]) {
 	fflush(fp);
 	fclose(fp);
 	// patch
-	LOG("Patching %s\n",inFile);
+    bool pac = iboot64_pac_check(&iboot_in);
+
+	if (setrootdev) {
+		printf("patching rootdev\n");
+		ret = set_rootdev(&iboot_in, pac, rootdev);
+		if (ret < 0)
+		{
+			printf("error patching rootdev");
+		}
+	}
+
+	/* LOG("Patching %s\n",inFile);
 	if(has_magic(iboot_in.buf)) { // make sure we aren't dealing with a packed IMG4 container
 		WARN("%s does not appear to be stripped\n",inFile);
 		return -1;
@@ -92,6 +109,7 @@ int main(int argc, char* argv[]) {
 		if(ret < 0) // won't fail because it is not fatal, but it would really be nice if we had k-debug
 			WARN("Could not enable kernel debug\n");
 	}
+	
 	if(has_recovery_console_k(&iboot_in)) {
 		if(command_str && (command_ptr != 0)) { // need to reassign command handler
 			LOG("Changing command handler %s to 0x%llx...\n",command_str,command_ptr);
@@ -111,6 +129,7 @@ int main(int argc, char* argv[]) {
 	if(ret < 0)
 		WARN("Error patching out RSA signature check\n");
 	// now write file
+	*/
 	fp = fopen(outFile,"wb+");
 	if(!fp) {
 		printf("Error opening %s for writing\n",outFile);
