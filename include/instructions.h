@@ -33,4 +33,4 @@ uint32_t replace_adr_addr(addr_t offset, uint32_t insn, int64_t addr);
 uint32_t new_branch(int64_t where, int64_t addr);
 uint32_t new_nop();
 uint32_t mov_w0_0();
-uint32_t mov_w0_disk();
+uint32_t mov_w0_disk(char *rootdev);

@@ -129,9 +129,21 @@ uint32_t mov_w0_0(){
     return 0x52800000;
 }
 
-uint32_t mov_w0_disk() {
-    return 0x52800108; // the last bit is the partition 
+uint32_t mov_w0_disk(char *rootdev) {
+    int number = *rootdev - '0';
+    char modifiedValueStr[11];
+
+    
+    sprintf(modifiedValueStr, "0x5280010%X", number);
+
+    uint32_t modifiedValue;
+    
+    sscanf(modifiedValueStr, "%X", &modifiedValue);
+
+
+    return modifiedValue;
 }
+
 
 uint32_t new_nop() {
     return 0xD503201F;

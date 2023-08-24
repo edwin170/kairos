@@ -465,6 +465,7 @@ int enable_kernel_debug(struct iboot64_img* iboot_in) {
 }
 
 int set_rootdev(struct iboot64_img* iboot_in, bool pac, const char *rootdev) {
+	printf("rootdev: %c\n", *rootdev);
 	char *img4Loc = memmem(iboot_in->buf,iboot_in->len,"<dict><key>IOProviderClass</key><string>IOMedia</string><key>IOPropertyMatch</key><dict><key>Partition ID</key><integer>%u</integer></dict></dict>\0", 147);
 	if(!img4Loc) {
 		WARN("Could not find the cadena string\n");
@@ -484,7 +485,7 @@ int set_rootdev(struct iboot64_img* iboot_in, bool pac, const char *rootdev) {
 	printf("patching more stuff\n");
 
 	uint32_t path1 = mov_w0_0();
-	uint32_t path2 = mov_w0_disk();
+	uint32_t path2 = mov_w0_disk(rootdev);
 
 	write_opcode(iboot_in->buf,rootdevRef - 0x2C, path1);
 	write_opcode(iboot_in->buf,rootdevRef - 0xC, path2);

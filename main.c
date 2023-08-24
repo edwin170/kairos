@@ -27,6 +27,7 @@ int main(int argc, char* argv[]) {
 		printf("Options:\n\t-b [args]\t\tset boot-args\n");
 		printf("\t-c [cmd] [location]\trelocate command handler\n");
 		printf("\t-n\t\t\tunlock nvram\n");
+		printf("\t-d\t\t\t+ the number of partition to boot, this will boot the partition that you especify, -d 8 \n");
 		printf("\nExample usage:\n%s iBEC.dec iBEC.patched -n -b \"-v debug=0x09\" -c \"go\" 0x830000300\n",argv[0]);
 		return -1;
 	}
