@@ -483,9 +483,16 @@ int set_rootdev(struct iboot64_img* iboot_in, bool pac, const char *rootdev) {
 	snprintf(img4Loc, 146, "<dict ID=\"0\"><key>IOProviderClass</key><string ID=\"1\">IOService</string><key>BSD Name</key><string ID=\"2\">disk0s1s%s</string></dict>", rootdev);
 
 	printf("patching more stuff\n");
-
+	
 	uint32_t path1 = mov_w0_0();
 	uint32_t path2 = mov_w0_disk(rootdev);
+
+	if (*((uint32_t*)((uintptr_t)(iboot_in->buf) + (uintptr_t)(rootdevRef - 0x4))) == 0x320003e8) { // ios 11 detection
+	    printf("ios 11 less detected\n");
+	    write_opcode(iboot_in->buf, rootdevRef - 0x38, path1);
+	    write_opcode(iboot_in->buf, rootdevRef - 0x4, path2);
+	    return 0;
+	}
 
 	write_opcode(iboot_in->buf,rootdevRef - 0x2C, path1);
 	write_opcode(iboot_in->buf,rootdevRef - 0xC, path2);
